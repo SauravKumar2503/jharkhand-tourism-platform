@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const Careers = () => {
     const [selectedJob, setSelectedJob] = useState(null);
@@ -43,7 +44,7 @@ const Careers = () => {
         data.append('resume', resume);
 
         try {
-            await axios.post('http://localhost:5001/api/career/apply', data, {
+            await axios.post(${API_BASE}/api/career/apply`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setSubmitted(true);

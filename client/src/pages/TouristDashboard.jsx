@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import bookingService from '../services/bookingService';
 import axios from 'axios';
+import API_BASE from '../config';
 import { Link } from 'react-router-dom';
 
 const TouristDashboard = () => {
@@ -81,7 +82,7 @@ const TouristDashboard = () => {
     const handleFeedbackSubmit = async () => {
         try {
             const token = JSON.parse(localStorage.getItem('user')).token;
-            await axios.post('http://localhost:5001/api/feedback', {
+            await axios.post(${API_BASE}/api/feedback`, {
                 bookingId: feedbackBooking._id,
                 rating: feedbackRating,
                 comment: feedbackComment

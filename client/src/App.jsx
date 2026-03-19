@@ -110,7 +110,7 @@ const Navbar = () => {
                   <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
                     {(user.user?.profilePicture || user.profilePicture) ? (
                       <img
-                        src={`http://localhost:5001${user.user?.profilePicture || user.profilePicture}`}
+                        src={`${API_BASE}${user.user?.profilePicture || user.profilePicture}`}
                         alt="Profile"
                         className="w-full h-full object-cover"
                       />
@@ -254,6 +254,7 @@ import Footer from './components/Footer';
 
 import Profile from './pages/Profile';
 import BookingPage from './pages/BookingPage';
+import API_BASE from './config';
 
 function App() {
   return (

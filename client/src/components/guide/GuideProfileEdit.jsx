@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE from '../../config';
 
 const GuideProfileEdit = ({ token, userProfile }) => {
     const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const GuideProfileEdit = ({ token, userProfile }) => {
                 languages: userProfile.guideProfile?.languages ? userProfile.guideProfile.languages.join(', ') : ''
             });
             if (userProfile.profilePicture) {
-                setPreview(`http://localhost:5001${userProfile.profilePicture}`);
+                setPreview(`${API_BASE}${userProfile.profilePicture}`);
             }
         }
     }, [userProfile]);
@@ -55,7 +56,7 @@ const GuideProfileEdit = ({ token, userProfile }) => {
                 }
             };
 
-            const res = await axios.put('http://localhost:5001/api/guides/profile', data, config);
+            const res = await axios.put(`${API_BASE}/api/guides/profile`, data, config);
 
             // Get existing data to preserve token
             const currentUser = JSON.parse(localStorage.getItem('user'));

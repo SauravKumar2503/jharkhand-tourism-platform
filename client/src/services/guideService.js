@@ -1,6 +1,7 @@
 import axios from 'axios';
+import API_BASE from '../config';
 
-const API_URL = 'http://localhost:5001/api/guides/';
+const API_URL = `${API_BASE}/api/guides/`;
 
 const getAllGuides = async () => {
     const response = await axios.get(API_URL);

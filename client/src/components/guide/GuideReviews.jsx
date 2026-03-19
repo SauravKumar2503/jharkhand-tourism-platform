@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../../config';
 
 const GuideReviews = ({ token }) => {
     const [reviews, setReviews] = useState([]);
@@ -14,7 +15,7 @@ const GuideReviews = ({ token }) => {
 
     const fetchReviews = async () => {
         try {
-            const res = await axios.get('http://localhost:5001/api/guides/reviews', config);
+            const res = await axios.get(`${API_BASE}/api/guides/reviews`, config);
             setReviews(res.data);
         } catch (err) {
             console.error(err);
@@ -23,7 +24,7 @@ const GuideReviews = ({ token }) => {
 
     const submitReply = async (reviewId) => {
         try {
-            await axios.put(`http://localhost:5001/api/guides/reviews/${reviewId}/reply`, { reply: replyText }, config);
+            await axios.put(`${API_BASE}/api/guides/reviews/${reviewId}/reply`, { reply: replyText }, config);
             setActiveReplyId(null);
             setReplyText('');
             fetchReviews();

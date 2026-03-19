@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext); // login used to update context
@@ -27,7 +28,7 @@ const Profile = () => {
                 phone: userData.phone || ''
             });
             if (userData.profilePicture) {
-                setPreview(`http://localhost:5001${userData.profilePicture}`);
+                setPreview(`${API_BASE}${userData.profilePicture}`);
             }
         }
     }, [user]);
@@ -62,7 +63,7 @@ const Profile = () => {
         }
 
         try {
-            const res = await axios.put('http://localhost:5001/api/auth/profile', data, config);
+            const res = await axios.put(`${API_BASE}/api/auth/profile`, data, config);
 
             // Update local storage and context
             const updatedUser = { token: user.token, user: res.data };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../../config';
 
 const GuideStats = ({ token }) => {
     const [stats, setStats] = useState(null);
@@ -10,7 +11,7 @@ const GuideStats = ({ token }) => {
             try {
                 setError(null);
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5001/api/guides/stats', config);
+                const res = await axios.get(`${API_BASE}/api/guides/stats`, config);
                 setStats(res.data);
             } catch (err) {
                 console.error("Error fetching stats:", err);

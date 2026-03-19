@@ -1,6 +1,7 @@
 import axios from 'axios';
+import API_BASE from '../config';
 
-const API_URL = 'http://localhost:5001/api/ai/';
+const API_URL = `${API_BASE}/api/ai/`;
 
 const chatWithAI = async (message, token, language = 'English') => {
     const config = {

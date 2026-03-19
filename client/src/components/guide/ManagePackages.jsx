@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../../config';
 
 const ManagePackages = ({ token }) => {
     const [packages, setPackages] = useState([]);
@@ -20,7 +21,7 @@ const ManagePackages = ({ token }) => {
 
     const fetchPackages = async () => {
         try {
-            const res = await axios.get('http://localhost:5001/api/guides/packages', config);
+            const res = await axios.get(`${API_BASE}/api/guides/packages`, config);
             setPackages(res.data);
         } catch (err) {
             console.error(err);
@@ -36,7 +37,7 @@ const ManagePackages = ({ token }) => {
                 duration: Number(newItem.duration),
                 locations: newItem.locations.split(',').map(l => l.trim())
             };
-            await axios.post('http://localhost:5001/api/guides/packages', payload, config);
+            await axios.post(`${API_BASE}/api/guides/packages`, payload, config);
             setShowForm(false);
             setNewItem({ title: '', description: '', price: '', duration: '', locations: '' });
             fetchPackages();
@@ -48,7 +49,7 @@ const ManagePackages = ({ token }) => {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this package?")) return;
         try {
-            await axios.delete(`http://localhost:5001/api/guides/packages/${id}`, config);
+            await axios.delete(`${API_BASE}/api/guides/packages/${id}`, config);
             fetchPackages();
         } catch (err) {
             alert('Failed to delete');

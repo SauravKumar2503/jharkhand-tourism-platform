@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const Contact = () => {
     const [submitted, setSubmitted] = useState(false);
@@ -16,7 +17,7 @@ const Contact = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:5001/api/contact', formData);
+            await axios.post(${API_BASE}/api/contact`, formData);
             setSubmitted(true);
             setLoading(false);
         } catch (err) {

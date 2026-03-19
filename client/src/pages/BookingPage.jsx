@@ -124,7 +124,7 @@ const BookingPage = () => {
                         <div className="flex items-center space-x-6 mb-8 p-4 bg-gray-50 rounded-xl">
                             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary bg-gray-200 flex items-center justify-center">
                                 {guide.profilePicture ? (
-                                    <img src={`http://localhost:5001${guide.profilePicture}`} alt={guide.name} className="w-full h-full object-cover" />
+                                    <img src={`${API_BASE}${guide.profilePicture}`} alt={guide.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="text-xl font-bold text-gray-600">
                                         {guide.name.charAt(0)}

@@ -2,9 +2,10 @@ import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import API_BASE from '../config';
 
 const SENTIMENT_COLORS = { positive: '#22c55e', neutral: '#eab308', negative: '#ef4444' };
-const API = 'http://localhost:5001/api';
+const API = `${API_BASE}/api`;
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -849,7 +850,7 @@ const AdminDashboard = () => {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <a
-                                                    href={`http://localhost:5001${app.resume}`}
+                                                    href={`${API_BASE}${app.resume}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-100 transition"

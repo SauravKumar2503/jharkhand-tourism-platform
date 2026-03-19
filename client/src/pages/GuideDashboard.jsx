@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import bookingService from '../services/bookingService';
 import axios from 'axios';
+import API_BASE from '../config';
 import GuideStats from '../components/guide/GuideStats';
 
 import ManagePackages from '../components/guide/ManagePackages';
@@ -34,7 +35,7 @@ const GuideDashboard = () => {
         setFeedbackLoading(true);
         try {
             const token = JSON.parse(localStorage.getItem('user'))?.token;
-            const res = await axios.get('http://localhost:5001/api/feedback/guide', {
+            const res = await axios.get(${API_BASE}/api/guides/dashboard`, {
                 headers: { 'x-auth-token': token }
             });
             setGuideFeedback(res.data);

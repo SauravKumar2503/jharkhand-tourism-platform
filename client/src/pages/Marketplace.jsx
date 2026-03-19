@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const categories = [
     { id: 'all', label: 'All', icon: '🏪', color: 'from-gray-600 to-gray-800' },
@@ -43,7 +44,7 @@ const Marketplace = () => {
 
         setOrderLoading(true);
         try {
-            const res = await axios.post('http://localhost:5001/api/marketplace/order', {
+            const res = await axios.post(`${API_BASE}/api/marketplace/order`, {
                 ...orderForm,
                 itemId: selectedItem._id,
                 paymentMethod
@@ -63,7 +64,7 @@ const Marketplace = () => {
     const fetchItems = async () => {
         setLoading(true);
         try {
-            let url = 'http://localhost:5001/api/marketplace';
+            let url = `${API_BASE}/api/marketplace`;
             const params = new URLSearchParams();
             if (activeCategory !== 'all') params.append('category', activeCategory);
             if (searchQuery) params.append('search', searchQuery);

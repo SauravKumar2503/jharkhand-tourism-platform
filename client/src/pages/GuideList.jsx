@@ -3,6 +3,7 @@ import guideService from '../services/guideService';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const GuideList = () => {
     const [guides, setGuides] = useState([]);
@@ -88,7 +89,7 @@ const GuideList = () => {
                                     <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white flex items-center justify-center">
                                         {guide.profilePicture ? (
                                             <img
-                                                src={`http://localhost:5001${guide.profilePicture}`}
+                                                src={`${API_BASE}${guide.profilePicture}`}
                                                 alt={guide.name}
                                                 className="w-full h-full object-cover"
                                             />

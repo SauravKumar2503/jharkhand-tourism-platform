@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE from '../../config';
 import guideService from '../../services/guideService';
 
 const AvailabilityCalendar = ({ token, userProfile }) => {
@@ -58,7 +59,7 @@ const AvailabilityCalendar = ({ token, userProfile }) => {
 
     const updateProfile = async (dates) => {
         const config = { headers: { 'x-auth-token': token } };
-        await axios.put('http://localhost:5001/api/guides/profile', { blockedDates: dates }, config);
+        await axios.put(`${API_BASE}/api/guides/profile`, { blockedDates: dates }, config);
     };
 
     return (

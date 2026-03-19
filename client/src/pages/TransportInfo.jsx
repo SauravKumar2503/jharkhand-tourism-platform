@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { popularDestinations } from '../data/transportData';
 import { transportData as staticTransportData } from '../data/transportData';
 import axios from 'axios';
+import API_BASE from '../config';
 
 const typeIcons = { airport: '✈️', railway: '🚆', bus: '🚌' };
 const typeLabels = { airport: 'Airport', railway: 'Railway Station', bus: 'Bus Stand' };
@@ -30,7 +31,7 @@ const TransportInfo = () => {
     useEffect(() => {
         const fetchTransport = async () => {
             try {
-                const res = await axios.get('http://localhost:5001/api/transport');
+                const res = await axios.get(``);
                 setTransportData(res.data);
             } catch (err) {
                 console.error("API failed, using static data:", err);
