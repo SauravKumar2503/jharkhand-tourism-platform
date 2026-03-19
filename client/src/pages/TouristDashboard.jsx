@@ -82,7 +82,7 @@ const TouristDashboard = () => {
     const handleFeedbackSubmit = async () => {
         try {
             const token = JSON.parse(localStorage.getItem('user')).token;
-            await axios.post(${API_BASE}/api/feedback`, {
+            await axios.post(`${API_BASE}/api/feedback`, {
                 bookingId: feedbackBooking._id,
                 rating: feedbackRating,
                 comment: feedbackComment

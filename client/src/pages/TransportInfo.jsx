@@ -31,7 +31,7 @@ const TransportInfo = () => {
     useEffect(() => {
         const fetchTransport = async () => {
             try {
-                const res = await axios.get(``);
+                const res = await axios.get(`${API_BASE}/api/transport`);
                 setTransportData(res.data);
             } catch (err) {
                 console.error("API failed, using static data:", err);

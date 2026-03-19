@@ -44,7 +44,7 @@ const Careers = () => {
         data.append('resume', resume);
 
         try {
-            await axios.post(${API_BASE}/api/career/apply`, data, {
+            await axios.post(`${API_BASE}/api/career/apply`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setSubmitted(true);

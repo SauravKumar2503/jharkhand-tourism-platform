@@ -17,7 +17,7 @@ const Contact = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post(${API_BASE}/api/contact`, formData);
+            await axios.post(`${API_BASE}/api/contact`, formData);
             setSubmitted(true);
             setLoading(false);
         } catch (err) {

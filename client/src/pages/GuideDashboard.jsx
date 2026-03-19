@@ -35,7 +35,7 @@ const GuideDashboard = () => {
         setFeedbackLoading(true);
         try {
             const token = JSON.parse(localStorage.getItem('user'))?.token;
-            const res = await axios.get(${API_BASE}/api/guides/dashboard`, {
+            const res = await axios.get(`${API_BASE}/api/guides/dashboard`, {
                 headers: { 'x-auth-token': token }
             });
             setGuideFeedback(res.data);
