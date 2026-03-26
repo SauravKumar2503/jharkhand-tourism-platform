@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import guideService from '../services/guideService';
 import bookingService from '../services/bookingService';
 import AuthContext from '../context/AuthContext';
+import API_BASE from '../config';
 
 const BookingPage = () => {
     const { guideId } = useParams();
