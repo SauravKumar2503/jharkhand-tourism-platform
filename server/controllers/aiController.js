@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Chat = require('../models/Chat');
 
-const AI_SERVICE_URL = 'http://127.0.0.1:5003';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:5003';
 
 // @desc    Chat with AI
 // @route   POST /api/ai/chat
