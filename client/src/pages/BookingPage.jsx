@@ -4,6 +4,7 @@ import guideService from '../services/guideService';
 import bookingService from '../services/bookingService';
 import AuthContext from '../context/AuthContext';
 import API_BASE from '../config';
+import axios from 'axios';
 
 const BookingPage = () => {
     const { guideId } = useParams();
@@ -19,6 +20,14 @@ const BookingPage = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    // Hotel stay state
+    const [hotels, setHotels] = useState([]);
+    const [wantHotel, setWantHotel] = useState(false);
+    const [selectedHotel, setSelectedHotel] = useState(null);
+    const [hotelCheckIn, setHotelCheckIn] = useState('');
+    const [hotelCheckOut, setHotelCheckOut] = useState('');
+    const [hotelNights, setHotelNights] = useState(0);
 
     useEffect(() => {
         const fetchGuideAndPackages = async () => {
@@ -50,6 +59,17 @@ const BookingPage = () => {
             }
         };
         fetchGuideAndPackages();
+
+        // Fetch guide's hotel listings
+        const fetchHotels = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/api/hotels/guide/${guideId}`);
+                setHotels(res.data);
+            } catch (err) {
+                console.error('Error fetching hotels:', err);
+            }
+        };
+        fetchHotels();
     }, [guideId]);
 
     const handleSelectPackage = (pkg) => {
@@ -62,20 +82,45 @@ const BookingPage = () => {
         }
     };
 
+    // Calculate hotel nights when dates change
+    useEffect(() => {
+        if (hotelCheckIn && hotelCheckOut) {
+            const cin = new Date(hotelCheckIn);
+            const cout = new Date(hotelCheckOut);
+            const diff = Math.max(1, Math.ceil((cout - cin) / (1000 * 60 * 60 * 24)));
+            setHotelNights(diff);
+        } else {
+            setHotelNights(0);
+        }
+    }, [hotelCheckIn, hotelCheckOut]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         const currentRate = guide?.guideProfile?.hourlyRate || 500;
-        const currentTotal = selectedPackage ? selectedPackage.price : (currentRate * duration);
+        const tourPrice = selectedPackage ? selectedPackage.price : (currentRate * duration);
+        const hotelCost = (wantHotel && selectedHotel) ? (selectedHotel.pricePerNight * hotelNights) : 0;
+        const currentTotal = tourPrice + hotelCost;
 
         try {
-            await bookingService.createBooking({
+            const bookingData = {
                 guideId,
                 date,
                 duration,
                 totalPrice: currentTotal,
                 packageId: selectedPackage?._id
-            }, user.token);
+            };
+
+            // Add hotel stay data if selected
+            if (wantHotel && selectedHotel && hotelNights > 0) {
+                bookingData.hotelStay = selectedHotel._id;
+                bookingData.hotelCheckIn = hotelCheckIn;
+                bookingData.hotelCheckOut = hotelCheckOut;
+                bookingData.hotelNights = hotelNights;
+                bookingData.hotelPrice = hotelCost;
+            }
+
+            await bookingService.createBooking(bookingData, user.token);
 
             setShowSuccess(true);
             setTimeout(() => {
@@ -92,7 +137,9 @@ const BookingPage = () => {
     if (!guide) return <div className="pt-32 text-center text-lg font-bold text-red-500">Guide Not Found</div>;
 
     const hourlyRate = guide.guideProfile?.hourlyRate || 500;
-    const totalPrice = selectedPackage ? selectedPackage.price : (hourlyRate * duration);
+    const tourPrice = selectedPackage ? selectedPackage.price : (hourlyRate * duration);
+    const hotelCost = (wantHotel && selectedHotel) ? (selectedHotel.pricePerNight * hotelNights) : 0;
+    const totalPrice = tourPrice + hotelCost;
 
     return (
         <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-6">
@@ -242,6 +289,121 @@ const BookingPage = () => {
                                     <p className="text-xs text-gray-400 mb-4">₹{hourlyRate}/hr × {duration} hr{duration > 1 ? 's' : ''}</p>
                                 )}
 
+                                {/* Hotel Stay Section */}
+                                {hotels.length > 0 && (
+                                    <div className="border-t border-gray-100 pt-4 mb-4">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                                🏨 Add Hotel Stay?
+                                            </h3>
+                                            <button
+                                                type="button"
+                                                onClick={() => { setWantHotel(!wantHotel); if (wantHotel) { setSelectedHotel(null); setHotelCheckIn(''); setHotelCheckOut(''); } }}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${wantHotel ? 'bg-primary' : 'bg-gray-300'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${wantHotel ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                        </div>
+
+                                        {wantHotel && (
+                                            <div className="space-y-3 animate-fade-in-up">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    {hotels.map(hotel => (
+                                                        <div
+                                                            key={hotel._id}
+                                                            onClick={() => setSelectedHotel(selectedHotel?._id === hotel._id ? null : hotel)}
+                                                            className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedHotel?._id === hotel._id
+                                                                ? 'border-blue-500 bg-blue-50 shadow-md'
+                                                                : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-start">
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <h4 className="font-bold text-gray-800">🏨 {hotel.hotelName}</h4>
+                                                                        {selectedHotel?._id === hotel._id && (
+                                                                            <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">Selected ✓</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <p className="text-gray-500 text-xs mt-1">📍 {hotel.location || 'Location TBD'}</p>
+                                                                    <div className="flex flex-wrap gap-1 mt-2">
+                                                                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{hotel.roomType}</span>
+                                                                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">👥 Max {hotel.maxGuests}</span>
+                                                                    </div>
+                                                                    {hotel.amenities?.length > 0 && (
+                                                                        <div className="flex flex-wrap gap-1 mt-1.5">
+                                                                            {hotel.amenities.slice(0, 4).map((a, i) => (
+                                                                                <span key={i} className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px]">{a}</span>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-right ml-3">
+                                                                    <p className="text-lg font-black text-blue-600">₹{hotel.pricePerNight}</p>
+                                                                    <p className="text-[10px] text-gray-400">per night</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {selectedHotel && (
+                                                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                                                        <p className="font-bold text-blue-800 text-sm">🗓️ Select Stay Dates</p>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-xs font-medium text-gray-600 mb-1">Check-in</label>
+                                                                <input
+                                                                    type="date"
+                                                                    value={hotelCheckIn}
+                                                                    min={date || new Date().toISOString().split('T')[0]}
+                                                                    onChange={(e) => setHotelCheckIn(e.target.value)}
+                                                                    className="w-full px-3 py-2 border rounded-lg text-sm focus:border-blue-500 outline-none"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-medium text-gray-600 mb-1">Check-out</label>
+                                                                <input
+                                                                    type="date"
+                                                                    value={hotelCheckOut}
+                                                                    min={hotelCheckIn || date || new Date().toISOString().split('T')[0]}
+                                                                    onChange={(e) => setHotelCheckOut(e.target.value)}
+                                                                    className="w-full px-3 py-2 border rounded-lg text-sm focus:border-blue-500 outline-none"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {hotelNights > 0 && (
+                                                            <div className="flex justify-between items-center bg-white rounded-lg p-3">
+                                                                <span className="text-sm text-gray-700">
+                                                                    🏨 {selectedHotel.hotelName} • {hotelNights} night{hotelNights > 1 ? 's' : ''}
+                                                                </span>
+                                                                <span className="font-bold text-blue-600">₹{hotelCost}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Price Summary */}
+                                {wantHotel && selectedHotel && hotelNights > 0 && (
+                                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 mb-4 space-y-1">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">🧭 Tour ({selectedPackage ? selectedPackage.title : `${duration}h`})</span>
+                                            <span className="font-semibold">₹{tourPrice}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">🏨 {selectedHotel.hotelName} ({hotelNights} night{hotelNights > 1 ? 's' : ''})</span>
+                                            <span className="font-semibold">₹{hotelCost}</span>
+                                        </div>
+                                        <div className="flex justify-between text-base font-bold border-t border-gray-200 pt-2 mt-2">
+                                            <span>Total</span>
+                                            <span className="text-primary">₹{totalPrice}</span>
+                                        </div>
+                                    </div>
+                                )}
                                 <button
                                     type="submit"
                                     disabled={submitting}

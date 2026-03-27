@@ -6,6 +6,7 @@ import API_BASE from '../config';
 import GuideStats from '../components/guide/GuideStats';
 
 import ManagePackages from '../components/guide/ManagePackages';
+import ManageHotels from '../components/guide/ManageHotels';
 import AvailabilityCalendar from '../components/guide/AvailabilityCalendar';
 
 const GuideDashboard = () => {
@@ -169,9 +170,18 @@ const GuideDashboard = () => {
                                                     }`}>
                                                     {booking.status.toUpperCase()}
                                                 </span>
+                                                {booking.hotelStay && (
+                                                    <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-2">
+                                                        <p className="text-xs font-bold text-blue-700">🏨 {booking.hotelStay.hotelName}</p>
+                                                        <p className="text-xs text-blue-600">
+                                                            {new Date(booking.hotelCheckIn).toLocaleDateString()} → {new Date(booking.hotelCheckOut).toLocaleDateString()} • {booking.hotelNights} night{booking.hotelNights > 1 ? 's' : ''} • ₹{booking.hotelPrice}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-bold text-xl text-primary">₹{booking.totalPrice}</p>
+                                                {booking.hotelPrice > 0 && <p className="text-xs text-gray-400">incl. ₹{booking.hotelPrice} hotel</p>}
                                             </div>
                                         </div>
                                     ))}
@@ -184,6 +194,8 @@ const GuideDashboard = () => {
                 return <AvailabilityCalendar token={user.token} userProfile={user} />;
             case 'packages':
                 return <ManagePackages token={user.token} />;
+            case 'hotels':
+                return <ManageHotels token={user.token} />;
             case 'cancelled':
                 const cancelledBookings = bookings.filter(b => b.status === 'cancelled');
                 return (
@@ -230,7 +242,7 @@ const GuideDashboard = () => {
                 {/* Tabs */}
                 <div className="container mx-auto px-6">
                     <div className="flex space-x-6 overflow-x-auto">
-                        {['overview', 'calendar', 'packages', 'feedback', 'cancelled'].map(tab => (
+                        {['overview', 'calendar', 'packages', 'hotels', 'feedback', 'cancelled'].map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}

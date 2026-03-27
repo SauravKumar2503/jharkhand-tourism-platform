@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import API_BASE from '../config';
+import bookingService from '../services/bookingService';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext); // login used to update context
@@ -16,6 +17,8 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [bookings, setBookings] = useState([]);
+    const [hotelCount, setHotelCount] = useState(0);
 
     useEffect(() => {
         if (user) {
@@ -30,6 +33,41 @@ const Profile = () => {
             if (userData.profilePicture) {
                 setPreview(`${API_BASE}${userData.profilePicture}`);
             }
+        }
+    }, [user]);
+
+    // Fetch bookings to show on profile
+    useEffect(() => {
+        const fetchBookings = async () => {
+            try {
+                const userObj = JSON.parse(localStorage.getItem('user'));
+                if (!userObj?.token) return;
+                const data = await bookingService.getMyBookings(userObj.token);
+                if (Array.isArray(data)) setBookings(data);
+            } catch (err) {
+                console.error('Error fetching bookings for profile:', err);
+            }
+        };
+
+        const fetchHotelCount = async () => {
+            try {
+                const userObj = JSON.parse(localStorage.getItem('user'));
+                if (!userObj?.token) return;
+                const userData = user.user || user;
+                if (userData.role === 'guide') {
+                    const res = await axios.get(`${API_BASE}/api/hotels`, {
+                        headers: { 'x-auth-token': userObj.token }
+                    });
+                    setHotelCount(res.data.length);
+                }
+            } catch (err) {
+                console.error('Error fetching hotel count:', err);
+            }
+        };
+
+        if (user) {
+            fetchBookings();
+            fetchHotelCount();
         }
     }, [user]);
 
@@ -170,6 +208,7 @@ const Profile = () => {
                             </div>
                         </form>
                     ) : (
+                        <>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="col-span-2 space-y-6">
                                 <div>
@@ -206,9 +245,76 @@ const Profile = () => {
                                         <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                                         Active
                                     </div>
+
+                                    {/* Quick Stats */}
+                                    <h3 className="font-bold text-gray-900 mt-6 mb-3">Quick Stats</h3>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">📅 Total Bookings</span>
+                                            <span className="font-bold">{bookings.length}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">🏨 Hotel Stays</span>
+                                            <span className="font-bold">{bookings.filter(b => b.hotelStay).length}</span>
+                                        </div>
+                                        {(user.user || user).role === 'guide' && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-500">🏨 Hotels Listed</span>
+                                                <span className="font-bold">{hotelCount}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Recent Bookings with Hotel Stay Details */}
+                        {bookings.length > 0 && (
+                            <div className="mt-8">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Recent Bookings</h3>
+                                <div className="space-y-3">
+                                    {bookings.slice(0, 5).map(booking => (
+                                        <div key={booking._id} className="border rounded-xl p-4 hover:bg-gray-50 transition">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="font-bold text-gray-800">
+                                                        {(user.user || user).role === 'guide'
+                                                            ? `Tourist: ${booking.tourist?.name || 'Guest'}`
+                                                            : `Guide: ${booking.guide?.name || 'Unknown'}`
+                                                        }
+                                                    </p>
+                                                    <p className="text-gray-500 text-sm">📅 {new Date(booking.date).toLocaleDateString()} • ⏳ {booking.duration}h</p>
+                                                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mt-1 ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : booking.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                        {booking.status.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-bold text-xl text-primary">₹{booking.totalPrice}</p>
+                                                    {booking.hotelPrice > 0 && <p className="text-xs text-gray-400">incl. ₹{booking.hotelPrice} hotel</p>}
+                                                </div>
+                                            </div>
+                                            {booking.hotelStay && (
+                                                <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3">
+                                                    <p className="text-sm font-bold text-blue-700">🏨 {booking.hotelStay.hotelName} — {booking.hotelStay.roomType}</p>
+                                                    <p className="text-xs text-blue-600 mt-1">
+                                                        📅 Check-in: {new Date(booking.hotelCheckIn).toLocaleDateString()} → Check-out: {new Date(booking.hotelCheckOut).toLocaleDateString()}
+                                                        {' '}• {booking.hotelNights} night{booking.hotelNights > 1 ? 's' : ''} • ₹{booking.hotelPrice}
+                                                    </p>
+                                                    {booking.hotelStay.amenities?.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-2">
+                                                            {booking.hotelStay.amenities.map((a, i) => (
+                                                                <span key={i} className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px]">{a}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        </>
                     )}
                 </div>
             </div>

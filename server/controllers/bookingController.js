@@ -4,7 +4,7 @@ const User = require('../models/User');
 // @desc    Create a new booking
 // @route   POST /api/bookings
 exports.createBooking = async (req, res) => {
-    const { guideId, date, totalPrice } = req.body;
+    const { guideId, date, totalPrice, duration, hotelStay, hotelCheckIn, hotelCheckOut, hotelNights, hotelPrice } = req.body;
 
     try {
         const guide = await User.findById(guideId);
@@ -12,15 +12,25 @@ exports.createBooking = async (req, res) => {
             return res.status(404).json({ message: 'Guide not found' });
         }
 
-        const booking = new Booking({
+        const bookingData = {
             tourist: req.user.id,
             guide: guideId,
             date,
-            duration: req.body.duration || 1, // Default to 1 hour if not specified
+            duration: duration || 1,
             totalPrice,
-            status: 'confirmed' // Auto-confirming for now/mock payment
-        });
+            status: 'confirmed'
+        };
 
+        // Add hotel stay fields if provided
+        if (hotelStay) {
+            bookingData.hotelStay = hotelStay;
+            bookingData.hotelCheckIn = hotelCheckIn;
+            bookingData.hotelCheckOut = hotelCheckOut;
+            bookingData.hotelNights = hotelNights || 0;
+            bookingData.hotelPrice = hotelPrice || 0;
+        }
+
+        const booking = new Booking(bookingData);
         await booking.save();
 
         res.json(booking);
@@ -37,7 +47,6 @@ exports.createBooking = async (req, res) => {
 exports.getMyBookings = async (req, res) => {
     try {
         console.log(`Getting bookings for user: ${req.user.id}`);
-        // Fetch user to get reliable role
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -46,10 +55,9 @@ exports.getMyBookings = async (req, res) => {
         console.log(`User Role: ${user.role}`);
         let bookings;
         if (user.role === 'guide') {
-            bookings = await Booking.find({ guide: req.user.id }).populate('tourist', 'name email');
+            bookings = await Booking.find({ guide: req.user.id }).populate('tourist', 'name email').populate('hotelStay');
         } else {
-            // Check if user ID is being saved correctly in booking.tourist
-            bookings = await Booking.find({ tourist: req.user.id }).populate('guide', 'name email guideProfile');
+            bookings = await Booking.find({ tourist: req.user.id }).populate('guide', 'name email guideProfile').populate('hotelStay');
         }
         console.log(`Found ${bookings.length} bookings`);
         res.json(bookings);

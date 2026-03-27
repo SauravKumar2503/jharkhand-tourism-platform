@@ -29,6 +29,27 @@ const BookingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    hotelStay: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'HotelStay',
+        default: null
+    },
+    hotelCheckIn: {
+        type: Date,
+        default: null
+    },
+    hotelCheckOut: {
+        type: Date,
+        default: null
+    },
+    hotelNights: {
+        type: Number,
+        default: 0
+    },
+    hotelPrice: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

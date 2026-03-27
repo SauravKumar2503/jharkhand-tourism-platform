@@ -14,3 +14,8 @@
 # Default Admin Account
 Email: admin@jharkhandtourism.com
 Password: Admin@123
+
+
+server : npm start
+client: npm run dev
+ai: py app.py

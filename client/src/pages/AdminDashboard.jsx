@@ -21,12 +21,15 @@ const AdminDashboard = () => {
     const [feedbackAnalytics, setFeedbackAnalytics] = useState(null);
     const [applications, setApplications] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [adminHotels, setAdminHotels] = useState([]);
+    const [guides, setGuides] = useState([]);
 
     // Modal States
     const [showUserModal, setShowUserModal] = useState(false);
     const [showSiteModal, setShowSiteModal] = useState(false);
     const [showMarketModal, setShowMarketModal] = useState(false);
     const [showTransportModal, setShowTransportModal] = useState(false);
+    const [showHotelModal, setShowHotelModal] = useState(false);
 
     // Form States
     const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'tourist' });
@@ -34,6 +37,7 @@ const AdminDashboard = () => {
     const [marketForm, setMarketForm] = useState({ name: '', description: '', price: '', category: 'handicrafts', image: '', location: '', contact: '' });
     const [transportForm, setTransportForm] = useState({ name: '', type: 'railway', city: '', lat: '', lng: '', facilities: '' });
     const [transports, setTransports] = useState([]);
+    const [hotelForm, setHotelForm] = useState({ guideId: '', hotelName: '', location: '', pricePerNight: '', roomType: 'Double', amenities: '', maxGuests: '2', description: '' });
 
     const token = JSON.parse(localStorage.getItem('user'))?.token;
     const config = { headers: { 'x-auth-token': token } };
@@ -75,6 +79,13 @@ const AdminDashboard = () => {
             } else if (activeTab === 'orders') {
                 const res = await axios.get(`${API}/marketplace/orders`, config);
                 setOrders(res.data);
+            } else if (activeTab === 'hotels') {
+                const [hotelsRes, guidesRes] = await Promise.all([
+                    axios.get(`${API}/hotels/all`, config),
+                    axios.get(`${API}/guides/`)
+                ]);
+                setAdminHotels(hotelsRes.data);
+                setGuides(guidesRes.data);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -227,6 +238,32 @@ const AdminDashboard = () => {
         } catch (err) { alert('Error deleting transport hub'); }
     };
 
+    // --- Hotel Actions ---
+    const handleAdminCreateHotel = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                ...hotelForm,
+                pricePerNight: Number(hotelForm.pricePerNight),
+                maxGuests: Number(hotelForm.maxGuests),
+                amenities: hotelForm.amenities.split(',').map(a => a.trim()).filter(Boolean)
+            };
+            await axios.post(`${API}/hotels/admin`, payload, config);
+            alert('Hotel added!');
+            setShowHotelModal(false);
+            setHotelForm({ guideId: '', hotelName: '', location: '', pricePerNight: '', roomType: 'Double', amenities: '', maxGuests: '2', description: '' });
+            fetchData();
+        } catch (err) { alert(err.response?.data?.message || 'Error adding hotel'); }
+    };
+
+    const handleAdminDeleteHotel = async (id) => {
+        if (!window.confirm('Delete this hotel?')) return;
+        try {
+            await axios.delete(`${API}/hotels/admin/${id}`, config);
+            fetchData();
+        } catch (err) { alert('Error deleting hotel'); }
+    };
+
     if (!user || userRole !== 'admin') {
         return <div className="min-h-screen flex items-center justify-center text-xl font-bold text-red-500">🔒 Access Denied — Admin Only</div>;
     }
@@ -243,7 +280,8 @@ const AdminDashboard = () => {
         { id: 'orders', label: `Orders${orders.length > 0 ? ` (${orders.length})` : ''}`, icon: '🛒' },
         { id: 'transport', label: 'Transport', icon: '🚆' },
         { id: 'feedback', label: 'Feedback', icon: '💬' },
-        { id: 'applications', label: `Applications${applications.length > 0 ? ` (${applications.length})` : ''}`, icon: '📄' }
+        { id: 'applications', label: `Applications${applications.length > 0 ? ` (${applications.length})` : ''}`, icon: '📄' },
+        { id: 'hotels', label: `Hotels${adminHotels.length > 0 ? ` (${adminHotels.length})` : ''}`, icon: '🏨' }
     ];
 
     const chartData = [
@@ -994,6 +1032,91 @@ const AdminDashboard = () => {
                     </div>
                 )
             }
+
+            {/* ==================== HOTELS TAB ==================== */}
+            {activeTab === 'hotels' && (
+                <div className="space-y-6 animate-fade-in-up">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-800">🏨 Hotel Listings ({adminHotels.length})</h2>
+                        <button onClick={() => setShowHotelModal(true)} className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition">+ Add Hotel</button>
+                    </div>
+
+                    {adminHotels.length === 0 ? (
+                        <div className="bg-white rounded-xl p-12 text-center">
+                            <div className="text-5xl mb-4">🏨</div>
+                            <p className="text-gray-500">No hotels listed yet.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {adminHotels.map(hotel => (
+                                <div key={hotel._id} className="bg-white rounded-xl shadow-sm border p-5 hover:shadow-md transition">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h3 className="font-bold text-lg">🏨 {hotel.hotelName}</h3>
+                                            <p className="text-gray-500 text-xs">📍 {hotel.location || 'N/A'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xl font-black text-primary">₹{hotel.pricePerNight}</p>
+                                            <p className="text-[10px] text-gray-400">per night</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1 mb-2">
+                                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{hotel.roomType}</span>
+                                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">👥 Max {hotel.maxGuests}</span>
+                                    </div>
+                                    {hotel.amenities?.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mb-2">
+                                            {hotel.amenities.map((a, i) => (
+                                                <span key={i} className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px]">{a}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <p className="text-xs text-gray-500 mb-3">🧑‍🏫 Guide: <strong>{hotel.guide?.name || 'Unknown'}</strong></p>
+                                    <button onClick={() => handleAdminDeleteHotel(hotel._id)} className="text-red-500 text-sm hover:underline">🗑️ Delete</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* CREATE HOTEL MODAL (Admin) */}
+            {showHotelModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl w-full max-w-lg p-6">
+                        <h2 className="text-xl font-bold mb-4">🏨 Add Hotel (Admin)</h2>
+                        <form onSubmit={handleAdminCreateHotel} className="space-y-4">
+                            <select className="w-full border p-2 rounded-lg" value={hotelForm.guideId} onChange={e => setHotelForm({ ...hotelForm, guideId: e.target.value })} required>
+                                <option value="">Select Guide...</option>
+                                {guides.map(g => (
+                                    <option key={g._id} value={g._id}>{g.name} ({g.email})</option>
+                                ))}
+                            </select>
+                            <input type="text" placeholder="Hotel Name" className="w-full border p-2 rounded-lg" value={hotelForm.hotelName} onChange={e => setHotelForm({ ...hotelForm, hotelName: e.target.value })} required />
+                            <div className="grid grid-cols-2 gap-4">
+                                <input type="text" placeholder="Location" className="w-full border p-2 rounded-lg" value={hotelForm.location} onChange={e => setHotelForm({ ...hotelForm, location: e.target.value })} />
+                                <input type="number" placeholder="Price/Night (₹)" className="w-full border p-2 rounded-lg" value={hotelForm.pricePerNight} onChange={e => setHotelForm({ ...hotelForm, pricePerNight: e.target.value })} required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <select className="w-full border p-2 rounded-lg" value={hotelForm.roomType} onChange={e => setHotelForm({ ...hotelForm, roomType: e.target.value })}>
+                                    <option value="Single">Single Room</option>
+                                    <option value="Double">Double Room</option>
+                                    <option value="Suite">Suite</option>
+                                    <option value="Deluxe">Deluxe</option>
+                                    <option value="Dormitory">Dormitory</option>
+                                </select>
+                                <input type="number" placeholder="Max Guests" className="w-full border p-2 rounded-lg" value={hotelForm.maxGuests} onChange={e => setHotelForm({ ...hotelForm, maxGuests: e.target.value })} />
+                            </div>
+                            <input type="text" placeholder="Amenities (WiFi, AC, Breakfast...)" className="w-full border p-2 rounded-lg" value={hotelForm.amenities} onChange={e => setHotelForm({ ...hotelForm, amenities: e.target.value })} />
+                            <textarea placeholder="Description" className="w-full border p-2 rounded-lg" rows="2" value={hotelForm.description} onChange={e => setHotelForm({ ...hotelForm, description: e.target.value })} />
+                            <div className="flex justify-end gap-2 mt-6">
+                                <button type="button" onClick={() => setShowHotelModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg font-bold">Add Hotel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

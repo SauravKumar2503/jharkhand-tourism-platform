@@ -197,6 +197,14 @@ const TouristDashboard = () => {
                                             {booking.status.toUpperCase()}
                                         </span>
                                     </div>
+                                    {booking.hotelStay && (
+                                        <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-2">
+                                            <p className="text-xs font-bold text-blue-700">🏨 {booking.hotelStay.hotelName} — {booking.hotelStay.roomType}</p>
+                                            <p className="text-xs text-blue-600">
+                                                📅 {new Date(booking.hotelCheckIn).toLocaleDateString()} → {new Date(booking.hotelCheckOut).toLocaleDateString()} • {booking.hotelNights} night{booking.hotelNights > 1 ? 's' : ''} • ₹{booking.hotelPrice}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="mt-4 md:mt-0 flex flex-wrap gap-2">

@@ -30,6 +30,7 @@ app.use('/api/marketplace', require('./routes/marketplaceRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/transport', require('./routes/transportRoutes'));
 app.use('/api/heritage', require('./routes/heritageRoutes'));
+app.use('/api/hotels', require('./routes/hotelRoutes'));
 
 app.get('/', (req, res) => {
     res.send('API is running...');
