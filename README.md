@@ -63,7 +63,7 @@ A comprehensive, AI-enhanced, and VR-integrated web platform designed to promote
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/SauravKumar2503/jharkhand-tourism-platform.git
+
    cd jharkhand-tourism-platform
    ```
 
