@@ -32,3 +32,8 @@ uploads/
 
 # Custom
 DEPLOYMENT.md
+Hosting Links.txt
+Default_id_pass
+server/migrate_to_atlas.js
+server/config/db.js.bak
+client/src/config.js.bak
