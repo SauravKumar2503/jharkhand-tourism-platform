@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/version', (req, res) => {
-    res.json({ version: '1.0.1-fix-stats', timestamp: Date.now() });
+    res.json({ version: '1.0.2-mongo-fix', timestamp: Date.now() });
 });
 
 app.listen(PORT, () => {
