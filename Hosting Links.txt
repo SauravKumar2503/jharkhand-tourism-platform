@@ -1,0 +1,5 @@
+Backend:-  https://jharkhand-tourism-platform.onrender.com
+
+Frontend:-  https://jharkhand-tourism-platform.vercel.app/ 
+
+Ai:- https://jharkhand-ai.onrender.com

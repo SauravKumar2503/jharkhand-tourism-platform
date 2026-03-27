@@ -29,3 +29,6 @@ uploads/
 
 # Temp files
 *.tmp
+
+# Custom
+DEPLOYMENT.md

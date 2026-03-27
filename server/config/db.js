@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        // URL encoding the @ in the password to %40 prevent connection string parsing errors
-        // Force hardcoded URI in case the user accidentally set a bad MONGO_URI in Render dashboard
-        const uri = 'mongodb+srv://sourav2002kumar:25Sau%402003@cluster0.jijh4wu.mongodb.net/jharkhand_tourism?retryWrites=true&w=majority';
+        const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/jharkhand_tourism';
         const conn = await mongoose.connect(uri);
 
         console.log(`MongoDB Connected: ${conn.connection.host}`);
