@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -79,7 +79,7 @@ const Login = () => {
                     </button>
                 </form>
                 <p className="mt-4 text-center text-gray-600">
-                    Don't have an account? <a href="/register" className="text-primary font-bold hover:underline">Register</a>
+                    Don't have an account? <Link to="/register" className="text-primary font-bold hover:underline">Register</Link>
                 </p>
             </div>
         </div>
