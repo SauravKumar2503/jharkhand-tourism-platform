@@ -2,7 +2,6 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 
 // @desc    Create a new booking
-// @route   POST /api/bookings
 exports.createBooking = async (req, res) => {
     const { guideId, date, totalPrice, duration, hotelStay, hotelCheckIn, hotelCheckOut, hotelNights, hotelPrice } = req.body;
 
@@ -10,6 +9,16 @@ exports.createBooking = async (req, res) => {
         const guide = await User.findById(guideId);
         if (!guide || guide.role !== 'guide') {
             return res.status(404).json({ message: 'Guide not found' });
+        }
+
+        // --- NEW: Backend Check for Blocked Dates ---
+        const bookingDateStr = new Date(date).toISOString().split('T')[0];
+        const alreadyBlocked = guide.guideProfile?.blockedDates?.some(d =>
+            new Date(d).toISOString().split('T')[0] === bookingDateStr
+        );
+
+        if (alreadyBlocked) {
+            return res.status(400).json({ message: 'Guide is already booked or unavailable on this date' });
         }
 
         const bookingData = {
@@ -33,6 +42,13 @@ exports.createBooking = async (req, res) => {
         const booking = new Booking(bookingData);
         await booking.save();
 
+        // --- NEW: Automatically block the date for the guide ---
+        if (!guide.guideProfile.blockedDates) {
+            guide.guideProfile.blockedDates = [];
+        }
+        guide.guideProfile.blockedDates.push(new Date(date));
+        await guide.save();
+
         res.json(booking);
     } catch (err) {
         console.error(err.message);
@@ -40,8 +56,6 @@ exports.createBooking = async (req, res) => {
     }
 };
 
-// @desc    Get my bookings
-// @route   GET /api/bookings/my
 // @desc    Get my bookings
 // @route   GET /api/bookings/my
 exports.getMyBookings = async (req, res) => {
@@ -69,8 +83,6 @@ exports.getMyBookings = async (req, res) => {
 
 // @desc    Cancel a booking
 // @route   PUT /api/bookings/:id/cancel
-// @desc    Cancel a booking
-// @route   PUT /api/bookings/:id/cancel
 exports.cancelBooking = async (req, res) => {
     try {
         console.log(`Cancelling booking ${req.params.id} for user ${req.user.id}`);
@@ -86,8 +98,23 @@ exports.cancelBooking = async (req, res) => {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
+        // Store old date to unblock
+        const oldDate = new Date(booking.date).toISOString().split('T')[0];
+        const targetGuideId = booking.guide;
+
         booking.status = 'cancelled';
         await booking.save();
+
+        // --- NEW: Automatically unblock the date for the guide ---
+        const guide = await User.findById(targetGuideId);
+        if (guide && guide.guideProfile && guide.guideProfile.blockedDates) {
+            guide.guideProfile.blockedDates = guide.guideProfile.blockedDates.filter(d =>
+                new Date(d).toISOString().split('T')[0] !== oldDate
+            );
+            await guide.save();
+            console.log(`Date ${oldDate} unblocked automatically for guide ${guide.name}`);
+        }
+
         console.log('Booking cancelled successfully');
         res.json(booking);
     } catch (err) {
@@ -96,8 +123,6 @@ exports.cancelBooking = async (req, res) => {
     }
 };
 
-// @desc    Reschedule a booking
-// @route   PUT /api/bookings/:id/reschedule
 // @desc    Reschedule a booking
 // @route   PUT /api/bookings/:id/reschedule
 exports.rescheduleBooking = async (req, res) => {
@@ -119,6 +144,11 @@ exports.rescheduleBooking = async (req, res) => {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
+        // Store old and new dates for unblocking/blocking
+        const oldDateStr = new Date(booking.date).toISOString().split('T')[0];
+        const newDateStr = new Date(date).toISOString().split('T')[0];
+        const targetGuideId = booking.guide;
+
         // Force update fields
         booking.date = date;
         booking.duration = Number(duration);
@@ -126,6 +156,28 @@ exports.rescheduleBooking = async (req, res) => {
         booking.status = 'confirmed';
 
         await booking.save();
+
+        // --- NEW: Update guide blocked dates ---
+        const guide = await User.findById(targetGuideId);
+        if (guide && guide.guideProfile) {
+            if (!guide.guideProfile.blockedDates) guide.guideProfile.blockedDates = [];
+
+            // 1. Remove old date
+            guide.guideProfile.blockedDates = guide.guideProfile.blockedDates.filter(d =>
+                new Date(d).toISOString().split('T')[0] !== oldDateStr
+            );
+
+            // 2. Add new date (if not already there)
+            const alreadyBlocked = guide.guideProfile.blockedDates.some(d =>
+                new Date(d).toISOString().split('T')[0] === newDateStr
+            );
+            if (!alreadyBlocked) {
+                guide.guideProfile.blockedDates.push(new Date(date));
+            }
+
+            await guide.save();
+            console.log(`Availability updated: Freed ${oldDateStr}, Blocked ${newDateStr}`);
+        }
 
         // Re-fetch to ensure clean population
         const updatedBooking = await Booking.findById(req.params.id)
