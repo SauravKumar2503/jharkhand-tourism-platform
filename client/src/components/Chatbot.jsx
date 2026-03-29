@@ -5,24 +5,15 @@ import AuthContext from '../context/AuthContext';
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [language, setLanguage] = useState('English');
-
-    const languages = ['English', 'Hindi', 'Santali', 'Bengali'];
 
     const getGreeting = () => {
         const userName = user?.user?.name || user?.name || "Traveler";
-        const greetings = {
-            English: `Hi ${userName}! I am your Jharkhand Travel Assistant. How can I help you today?`,
-            Hindi: `नमस्ते ${userName}! मैं आपका झारखंड यात्रा सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?`,
-            Santali: `जोहार ${userName}! ᱟᱢ ᱡᱷᱟᱨᱠᱷᱟᱱᱰ ᱵᱷᱩᱞᱤ ᱥᱟᱦᱟᱭᱟᱠ ᱠᱟᱱᱟ. How can I help?`,
-            Bengali: `হ্যালো ${userName}! আমি আপনার ঝাড়খণ্ড ভ্রমণ সহকারী। আজ আমি কীভাবে সাহায্য করতে পারি?`
-        };
         const options = ["Plan a trip for me 🗺️", "Best places to visit 🏞️", "Find a local guide 🧑‍🤝‍🧑"];
         if (user) {
             options.push("Load previous chat 📜");
         }
         return {
-            text: greetings[language] || greetings.English,
+            text: `Hi ${userName}! I am your Jharkhand Travel Assistant. How can I help you today?`,
             sender: "bot",
             options: options
         };
@@ -34,7 +25,7 @@ const Chatbot = () => {
     // Reset chat on user change (start from scratch)
     useEffect(() => {
         setMessages([getGreeting()]);
-    }, [user, language]);
+    }, [user]);
 
     const loadHistory = async () => {
         try {
@@ -94,7 +85,7 @@ const Chatbot = () => {
                 return;
             }
 
-            const data = await aiService.chatWithAI(messageText, token, language);
+            const data = await aiService.chatWithAI(messageText, token, 'English');
             const botMessage = { text: data.response, sender: "bot" };
             setMessages(prev => [...prev, botMessage]);
         } catch (error) {
@@ -119,15 +110,6 @@ const Chatbot = () => {
                     <div className="bg-primary text-white p-3 flex justify-between items-center">
                         <h3 className="font-bold text-sm">Jharkhand AI Assistant</h3>
                         <div className="flex items-center gap-2">
-                            <select
-                                value={language}
-                                onChange={(e) => setLanguage(e.target.value)}
-                                className="bg-white/20 text-white text-xs rounded px-1 py-0.5 border border-white/30 focus:outline-none"
-                            >
-                                {languages.map(lang => (
-                                    <option key={lang} value={lang} className="text-gray-800">{lang}</option>
-                                ))}
-                            </select>
                             <button onClick={toggleChat} className="text-white hover:text-gray-200 text-lg">✕</button>
                         </div>
                     </div>
