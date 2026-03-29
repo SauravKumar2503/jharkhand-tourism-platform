@@ -5,6 +5,7 @@ import bookingService from '../services/bookingService';
 import AuthContext from '../context/AuthContext';
 import API_BASE from '../config';
 import axios from 'axios';
+import Avatar from '../components/common/Avatar';
 
 const BookingPage = () => {
     const { guideId } = useParams();
@@ -170,14 +171,8 @@ const BookingPage = () => {
                     <div className="p-8">
                         {/* Guide Info */}
                         <div className="flex items-center space-x-6 mb-8 p-4 bg-gray-50 rounded-xl">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary bg-gray-200 flex items-center justify-center">
-                                {guide.profilePicture ? (
-                                    <img src={`${API_BASE}${guide.profilePicture}`} alt={guide.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="text-xl font-bold text-gray-600">
-                                        {guide.name.charAt(0)}
-                                    </div>
-                                )}
+                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary bg-white shadow-sm flex items-center justify-center">
+                                <Avatar src={guide.profilePicture} name={guide.name} textClassName="text-xl" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">{guide.name}</h2>

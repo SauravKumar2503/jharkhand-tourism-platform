@@ -18,6 +18,7 @@ import Careers from './pages/Careers';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Marketplace from './pages/Marketplace';
 import TransportInfo from './pages/TransportInfo';
+import Avatar from './components/common/Avatar';
 
 const Dashboard = () => {
   const { user, loading } = useContext(AuthContext);
@@ -108,17 +109,11 @@ const Navbar = () => {
               <>
                 <Link to="/profile" className="flex items-center space-x-2 text-primary font-bold hover:underline">
                   <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-                    {(user.user?.profilePicture || user.profilePicture) ? (
-                      <img
-                        src={`${API_BASE}${user.user?.profilePicture || user.profilePicture}`}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-primary/20 flex items-center justify-center text-xs text-primary font-bold">
-                        {userName ? userName.charAt(0).toUpperCase() : 'U'}
-                      </div>
-                    )}
+                    <Avatar 
+                      src={user.user?.profilePicture || user.profilePicture} 
+                      name={userName} 
+                      textClassName="text-[10px]" 
+                    />
                   </div>
                   <span>Hello, {userName}</span>
                 </Link>

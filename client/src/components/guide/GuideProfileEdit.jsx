@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import Avatar from '../common/Avatar';
 import API_BASE from '../../config';
 
 const GuideProfileEdit = ({ token, userProfile }) => {
@@ -81,11 +82,7 @@ const GuideProfileEdit = ({ token, userProfile }) => {
                 {/* Profile Image & Name */}
                 <div className="flex flex-col items-center mb-6">
                     <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 mb-4 relative group cursor-pointer">
-                        {preview ? (
-                            <img src={preview} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No Img</div>
-                        )}
+                        <Avatar src={preview} name={formData.name} textClassName="text-4xl" />
                         <input
                             type="file"
                             onChange={handleFileChange}

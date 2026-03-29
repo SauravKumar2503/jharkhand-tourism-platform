@@ -3,6 +3,7 @@ import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import API_BASE from '../config';
 import bookingService from '../services/bookingService';
+import Avatar from '../components/common/Avatar';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext); // login used to update context
@@ -128,14 +129,8 @@ const Profile = () => {
             <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
                 <div className="h-48 bg-gradient-to-r from-primary to-orange-400 relative">
                     <div className="absolute -bottom-16 left-8">
-                        <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-200">
-                            {preview ? (
-                                <img src={preview} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
-                                    {formData.name.charAt(0)}
-                                </div>
-                            )}
+                        <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
+                            <Avatar src={preview} name={formData.name} textClassName="text-4xl" />
                         </div>
                     </div>
                     <div className="absolute top-4 right-4">
