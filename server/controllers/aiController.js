@@ -18,7 +18,11 @@ exports.chatWithAI = async (req, res) => {
         });
         await userChat.save();
 
-        const response = await axios.post(`${AI_SERVICE_URL}/chat`, { message, language: language || 'English' });
+        const response = await axios.post(`${AI_SERVICE_URL}/chat`, { 
+            message, 
+            role: req.user.role || 'tourist',
+            language: language || 'English' 
+        });
         const botResponse = response.data.response;
 
         // Save Bot Response

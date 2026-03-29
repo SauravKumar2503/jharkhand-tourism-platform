@@ -7,13 +7,27 @@ const Chatbot = () => {
     const { user } = useContext(AuthContext);
 
     const getGreeting = () => {
-        const userName = user?.user?.name || user?.name || "Traveler";
-        const options = ["Plan a trip for me 🗺️", "Best places to visit 🏞️", "Find a local guide 🧑‍🤝‍🧑"];
+        const userData = user?.user || user;
+        const userName = userData?.name || "Traveler";
+        const role = userData?.role || 'tourist';
+
+        let greetingText = `Hi ${userName}! I am your Jharkhand Travel Assistant. How can I help you today?`;
+        let options = ["Plan a trip for me 🗺️", "Best places to visit 🏞️", "Find a local guide 🧑‍🤝‍🧑"];
+
+        if (role === 'guide') {
+            greetingText = `Hi ${userName}! I am your Jharkhand Guide Assistant. How can I help you manage your tours and profile today?`;
+            options = ["Check my tour schedule 🗓️", "How to get more bookings? 📈", "Update my profile ✍️"];
+        } else if (role === 'admin') {
+            greetingText = `Hi ${userName}! You are in the Jharkhand Admin Control Center. I can help you with system stats and platform management.`;
+            options = ["Platform statistics summary 📊", "Manage pending approvals ⏳", "Check system logs 🖥️"];
+        }
+
         if (user) {
             options.push("Load previous chat 📜");
         }
+
         return {
-            text: `Hi ${userName}! I am your Jharkhand Travel Assistant. How can I help you today?`,
+            text: greetingText,
             sender: "bot",
             options: options
         };
