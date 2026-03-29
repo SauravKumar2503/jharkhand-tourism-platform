@@ -5,6 +5,27 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE from '../config';
 
+const Avatar = ({ guide }) => {
+    const [imgError, setImgError] = useState(false);
+
+    if (!guide.profilePicture || imgError) {
+        return (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-gray-400">
+                {guide.name ? guide.name.charAt(0) : 'G'}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={`${API_BASE}${guide.profilePicture}`}
+            alt={guide.name}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+        />
+    );
+};
+
 const GuideList = () => {
     const [guides, setGuides] = useState([]);
     const { user } = useContext(AuthContext);
@@ -87,17 +108,7 @@ const GuideList = () => {
                             <div className="h-32 bg-gradient-to-r from-primary to-green-600 relative">
                                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
                                     <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white flex items-center justify-center">
-                                        {guide.profilePicture ? (
-                                            <img
-                                                src={`${API_BASE}${guide.profilePicture}`}
-                                                alt={guide.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-gray-400">
-                                                {guide.name.charAt(0)}
-                                            </div>
-                                        )}
+                                        <Avatar guide={guide} />
                                     </div>
                                 </div>
                             </div>
