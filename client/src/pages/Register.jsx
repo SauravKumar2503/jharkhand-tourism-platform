@@ -30,7 +30,7 @@ const Register = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h2 className="text-2xl font-bold mb-6 text-center text-primary">Register</h2>
-                <form onSubmit={onSubmit}>
+                <form onSubmit={onSubmit} autoComplete="off">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
                         <input
@@ -40,6 +40,7 @@ const Register = () => {
                             onChange={onChange}
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary"
                             required
+                            autoComplete="off"
                         />
                     </div>
                     <div className="mb-4">
@@ -51,6 +52,7 @@ const Register = () => {
                             onChange={onChange}
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary"
                             required
+                            autoComplete="off"
                         />
                     </div>
                     <div className="mb-4">
@@ -62,6 +64,7 @@ const Register = () => {
                             onChange={onChange}
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary"
                             required
+                            autoComplete="new-password"
                         />
                     </div>
                     <div className="mb-6">
