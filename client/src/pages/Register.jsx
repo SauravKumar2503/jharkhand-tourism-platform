@@ -10,6 +10,8 @@ const Register = () => {
         role: 'tourist'
     });
 
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -21,17 +23,29 @@ const Register = () => {
         e.preventDefault();
         try {
             await register(formData);
-            alert('Registered successfully');
-            navigate('/');
+            setShowSuccessMessage(true);
+            setTimeout(() => {
+                navigate('/');
+            }, 2500); // Redirect after 2.5 seconds
         } catch (err) {
             console.error(err);
             alert('Registration failed');
         }
     };
 
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            {showSuccessMessage && (
+                <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 animate-fade-in-up">
+                    <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl transform scale-105 transition-all">
+                        <div className="text-6xl mb-4">🎉✨</div>
+                        <h2 className="text-2xl font-bold text-primary mb-2">Registration Successful!</h2>
+                        <p className="text-gray-600 text-lg">
+                            Welcome to JharkhandConnect. Let's start your journey!
+                        </p>
+                    </div>
+                </div>
+            )}
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h2 className="text-2xl font-bold mb-6 text-center text-primary">Register</h2>
                 <form onSubmit={onSubmit} autoComplete="off">
