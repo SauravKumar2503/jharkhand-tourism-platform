@@ -26,6 +26,7 @@ const AdminDashboard = () => {
 
     // Modal States
     const [showUserModal, setShowUserModal] = useState(false);
+    const [inspectingGuide, setInspectingGuide] = useState(null);
     const [showSiteModal, setShowSiteModal] = useState(false);
     const [showMarketModal, setShowMarketModal] = useState(false);
     const [showTransportModal, setShowTransportModal] = useState(false);
@@ -401,16 +402,10 @@ const AdminDashboard = () => {
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
-                                                    onClick={() => handleApproveGuide(guide._id)}
-                                                    className="px-5 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition text-sm"
+                                                    onClick={() => setInspectingGuide(guide)}
+                                                    className="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition text-sm flex items-center justify-center gap-2"
                                                 >
-                                                    ✅ Approve
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRejectGuide(guide._id)}
-                                                    className="px-5 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition text-sm"
-                                                >
-                                                    ❌ Reject
+                                                    📄 Review Application
                                                 </button>
                                             </div>
                                         </div>
@@ -1114,6 +1109,90 @@ const AdminDashboard = () => {
                                 <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg font-bold">Add Hotel</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ==================== GUIDE REVIEW MODAL ==================== */}
+            {inspectingGuide && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">📝 Review Guide Application</h2>
+                            <button onClick={() => setInspectingGuide(null)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                        </div>
+                        <div className="p-6 overflow-y-auto space-y-6">
+                            {/* Guide Info */}
+                            <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                                <h3 className="font-bold text-gray-800 text-lg">{inspectingGuide.name}</h3>
+                                <p className="text-gray-600 mb-2">{inspectingGuide.email}</p>
+                                <div className="text-sm text-gray-500 space-y-1">
+                                    <p><strong>Languages:</strong> {inspectingGuide.guideProfile?.languages?.join(', ') || 'N/A'}</p>
+                                    <p><strong>Experience:</strong> {inspectingGuide.guideProfile?.experienceYears || 0} years</p>
+                                </div>
+                            </div>
+
+                            {/* Documents */}
+                            <div>
+                                <h3 className="font-bold text-gray-800 mb-3 text-lg border-b pb-2">Uploaded Documents</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* ID Proof */}
+                                    <div className="border rounded-lg p-4 flex flex-col hover:shadow-md transition">
+                                        <p className="font-bold mb-2 text-gray-700 flex items-center gap-2">🪪 ID Proof</p>
+                                        {inspectingGuide.guideProfile?.idProofUrl ? (
+                                            <a 
+                                                href={`${API_BASE}${inspectingGuide.guideProfile.idProofUrl}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="bg-blue-50 text-blue-600 py-3 rounded text-center border font-semibold hover:bg-blue-100 transition"
+                                            >
+                                                View Document ↗
+                                            </a>
+                                        ) : (
+                                            <p className="text-red-500 text-sm mt-2">No document uploaded.</p>
+                                        )}
+                                    </div>
+                                    {/* Certificate */}
+                                    <div className="border rounded-lg p-4 flex flex-col hover:shadow-md transition">
+                                        <p className="font-bold mb-2 text-gray-700 flex items-center gap-2">🎓 Guide Certificate</p>
+                                        {inspectingGuide.guideProfile?.certificateUrl ? (
+                                            <a 
+                                                href={`${API_BASE}${inspectingGuide.guideProfile.certificateUrl}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="bg-blue-50 text-blue-600 py-3 rounded text-center border font-semibold hover:bg-blue-100 transition"
+                                            >
+                                                View Document ↗
+                                            </a>
+                                        ) : (
+                                            <p className="text-red-500 text-sm mt-2">No document uploaded.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 rounded-b-xl">
+                            <button
+                                onClick={() => {
+                                    handleRejectGuide(inspectingGuide._id);
+                                    setInspectingGuide(null);
+                                }}
+                                className="px-6 py-2 bg-white text-red-600 border border-red-200 hover:bg-red-50 rounded-lg font-bold transition"
+                            >
+                                ❌ Reject Application
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleApproveGuide(inspectingGuide._id);
+                                    setInspectingGuide(null);
+                                }}
+                                className="px-8 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-md transition"
+                            >
+                                ✅ Approve Guide
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
