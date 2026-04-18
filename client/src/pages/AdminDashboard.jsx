@@ -930,10 +930,10 @@ const AdminDashboard = () => {
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                         <div className="bg-white rounded-xl w-full max-w-md p-6">
                             <h2 className="text-xl font-bold mb-4">Add New User</h2>
-                            <form onSubmit={handleCreateUser} className="space-y-4">
-                                <input type="text" placeholder="Full Name" className="w-full border p-2 rounded-lg" value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })} required />
-                                <input type="email" placeholder="Email Address" className="w-full border p-2 rounded-lg" value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })} required />
-                                <input type="password" placeholder="Password" className="w-full border p-2 rounded-lg" value={userForm.password} onChange={e => setUserForm({ ...userForm, password: e.target.value })} required />
+                            <form onSubmit={handleCreateUser} className="space-y-4" autoComplete="off">
+                                <input type="text" placeholder="Full Name" className="w-full border p-2 rounded-lg" value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })} required autoComplete="off" />
+                                <input type="email" placeholder="Email Address" className="w-full border p-2 rounded-lg" value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })} required autoComplete="off" />
+                                <input type="password" placeholder="Password" className="w-full border p-2 rounded-lg" value={userForm.password} onChange={e => setUserForm({ ...userForm, password: e.target.value })} required autoComplete="new-password" />
                                 <select className="w-full border p-2 rounded-lg" value={userForm.role} onChange={e => setUserForm({ ...userForm, role: e.target.value })}>
                                     <option value="tourist">Tourist</option>
                                     <option value="guide">Guide</option>
