@@ -27,7 +27,7 @@ const Login = () => {
             }, 2500); // Redirect after 2.5 seconds
         } catch (err) {
             console.error(err);
-            alert('Login failed');
+            alert(err.response?.data?.message || 'Login failed');
         }
     };
 

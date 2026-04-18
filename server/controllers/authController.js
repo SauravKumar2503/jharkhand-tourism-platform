@@ -18,6 +18,12 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        if (role === 'guide') {
+            if (!req.files || !req.files.idProof || !req.files.certificate) {
+                return res.status(400).json({ message: 'ID Proof and Guide Certificate are required for guide registration.' });
+            }
+        }
+
         user = new User({
             name,
             email,
@@ -25,6 +31,13 @@ exports.registerUser = async (req, res) => {
             role: role || 'tourist',
             isApproved: role === 'guide' ? false : true  // guides need admin approval
         });
+
+        if (role === 'guide' && req.files) {
+            // Because User model schema defines guideProfile as an object, we can set properties on it
+            user.guideProfile.idProofUrl = `/uploads/${req.files.idProof[0].filename}`;
+            user.guideProfile.certificateUrl = `/uploads/${req.files.certificate[0].filename}`;
+        }
+
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);

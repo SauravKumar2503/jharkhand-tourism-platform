@@ -11,6 +11,8 @@ const Register = () => {
     });
 
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [idProof, setIdProof] = useState(null);
+    const [certificate, setCertificate] = useState(null);
 
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -22,14 +24,27 @@ const Register = () => {
     const onSubmit = async e => {
         e.preventDefault();
         try {
-            await register(formData);
+            let submissionData = formData;
+            
+            if (role === 'guide') {
+                const data = new FormData();
+                data.append('name', name);
+                data.append('email', email);
+                data.append('password', password);
+                data.append('role', role);
+                if (idProof) data.append('idProof', idProof);
+                if (certificate) data.append('certificate', certificate);
+                submissionData = data;
+            }
+
+            await register(submissionData);
             setShowSuccessMessage(true);
             setTimeout(() => {
                 navigate('/');
             }, 2500); // Redirect after 2.5 seconds
         } catch (err) {
             console.error(err);
-            alert('Registration failed');
+            alert(err.response?.data?.message || 'Registration failed');
         }
     };
 
@@ -97,6 +112,29 @@ const Register = () => {
                             <option value="guide">Guide</option>
                         </select>
                     </div>
+
+                    {role === 'guide' && (
+                        <>
+                            <div className="mb-4">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">ID Proof (PDF/Image)</label>
+                                <input
+                                    type="file"
+                                    onChange={e => setIdProof(e.target.files[0])}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary bg-white"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-6">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Guide Certificate (PDF/Image)</label>
+                                <input
+                                    type="file"
+                                    onChange={e => setCertificate(e.target.files[0])}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary bg-white"
+                                    required
+                                />
+                            </div>
+                        </>
+                    )}
                     <button
                         type="submit"
                         className="w-full bg-primary text-white font-bold py-2 px-4 rounded hover:bg-orange-600 transition"

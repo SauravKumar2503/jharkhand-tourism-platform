@@ -5,7 +5,14 @@ const API_URL = `${API_BASE}/api/auth/`;
 
 // Register user
 const register = async (userData) => {
-    const response = await axios.post(API_URL + 'register', userData);
+    let response;
+    if (userData instanceof FormData) {
+        response = await axios.post(API_URL + 'register', userData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    } else {
+        response = await axios.post(API_URL + 'register', userData);
+    }
 
     if (response.data) {
         localStorage.setItem('user', JSON.stringify(response.data));

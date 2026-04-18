@@ -76,6 +76,14 @@ const UserSchema = new mongoose.Schema({
         govIdHash: {
             type: String,
             default: ''
+        },
+        idProofUrl: {
+            type: String,
+            default: ''
+        },
+        certificateUrl: {
+            type: String,
+            default: ''
         }
     },
     createdAt: {
