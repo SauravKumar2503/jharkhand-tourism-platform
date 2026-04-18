@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const Register = () => {
@@ -10,6 +11,7 @@ const Register = () => {
     });
 
     const { register } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const { name, email, password, role } = formData;
 
@@ -20,11 +22,13 @@ const Register = () => {
         try {
             await register(formData);
             alert('Registered successfully');
+            navigate('/');
         } catch (err) {
             console.error(err);
             alert('Registration failed');
         }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
