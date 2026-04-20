@@ -104,7 +104,8 @@ const Chatbot = () => {
             setMessages(prev => [...prev, botMessage]);
         } catch (error) {
             console.error("Chat Error:", error);
-            setMessages(prev => [...prev, { text: "Sorry, I am having trouble connecting.", sender: "bot" }]);
+            const errorMessage = error.response?.data?.message || "Sorry, I am having trouble connecting.";
+            setMessages(prev => [...prev, { text: errorMessage, sender: "bot" }]);
         }
     };
 
